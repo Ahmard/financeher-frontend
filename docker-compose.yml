@@ -1,0 +1,35 @@
+services:
+  financeher-dashboard:
+    container_name: financeher-dashboard
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: "${FINANCEHER_DASHBOARD_SERVER_PORT}"
+    env_file:
+      - .env.production
+    ports:
+      - "${FINANCEHER_DASHBOARD_SERVER_PORT}:${FINANCEHER_DASHBOARD_SERVER_PORT}"
+    networks:
+      - oladejo-main-network
+    dns:
+      - "${FINANCEHER_DOCKER_DNS_PREFIX}.254"
+    extra_hosts:
+      - "tailoring.ahmard.net:host-gateway"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${FINANCEHER_DASHBOARD_SERVER_PORT}/" ]
+      interval: 1m30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+networks:
+  financeher-main-network:
+    name: financeher-main-network
+    external: true
