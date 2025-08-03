@@ -9,6 +9,7 @@ export class User extends BaseModel {
 	nin: string | null;
 	profile_picture: string | null;
 	status: string;
+	registration_stage: UserRegistrationStage;
 	last_login_at: string | null;
 }
 
@@ -22,4 +23,10 @@ export enum UserStatus {
 	Active = 'active',
 	Inactive = 'inactive',
 	Pending = 'pending',
+}
+
+export enum UserRegistrationStage {
+	EmailVerification = 'email_verification',
+	PlanSubscription = 'plan_subscription',
+	AccountSetup = 'account_setup',
 }

@@ -1,3 +1,5 @@
+import type {UserRegistrationStage} from "@/lib/models/user";
+
 export interface ILoginResponse {
 	access_token: string;
 	expires_in: number;
@@ -43,6 +45,7 @@ export interface AuthMe {
 	profile_picture: string;
 	cover_picture: undefined;
 	status: string;
+	registration_stage: UserRegistrationStage;
 	unit_names: string[];
 	role_names: string[];
 	auth_data: AuthMeData;

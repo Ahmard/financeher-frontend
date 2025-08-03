@@ -1,5 +1,6 @@
 import {zodResolver} from "@hookform/resolvers/zod";
 import Link from "next/link";
+import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
 import {Button} from "@/components/ui/button";
@@ -7,7 +8,6 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {apiUrl} from "@/lib/helpers/url";
 import {xhrPost} from "@/lib/xhr";
-import {signIn} from "next-auth/react";
 
 // Zod schema for form validation
 const signupSchema = z.object({
@@ -20,14 +20,11 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
-interface IRegisterResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  expires_at: number;
+interface IProps {
+  onAccountCreated: (email: string, pass: string) => void,
 }
 
-export default function RegisterMainScreen() {
+export default function RegisterMainScreen(props: IProps) {
   const {
     register,
     handleSubmit,
@@ -36,21 +33,18 @@ export default function RegisterMainScreen() {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = (data: SignupFormData) => {
-    xhrPost<IRegisterResponse>(apiUrl('auth/register'), data)
-      .then(async (_) => {
-        // Try login user in
-        const login_response = await signIn("credentials", {
-          redirect: false,
-          email: data.email,
-          password: data.password,
-        });
+  const {onAccountCreated} = props;
 
-        console.info('Logged in')
-        console.log(login_response)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = (data: SignupFormData) => {
+    setIsSubmitting(true)
+    xhrPost(apiUrl('auth/register'), data)
+      .then(async () => {
+        console.info('Account created successfully')
+        onAccountCreated(data.email, data.password)
       })
-    console.log('Form Data:', data);
-    // handle form submission logic here
+      .finally(() => setIsSubmitting(false))
   };
 
   return (
@@ -59,14 +53,14 @@ export default function RegisterMainScreen() {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-right mb-8">
-            <Link href="/login" className="!text-green-900 hover:!text-emerald-800 font-medium">
+            <Link href="/login" className="!text-[#006A4B] hover:!text-emerald-800 font-medium">
               Login
             </Link>
           </div>
 
           {/* Form */}
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-2xl font-semibold text-[#006A4B] mb-2">
               Create an account
             </h2>
             <p className="text-gray-600 mb-8">
@@ -102,6 +96,7 @@ export default function RegisterMainScreen() {
                   placeholder="Enter Full Name"
                   className="mt-1 py-3 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                   {...register('full_name')}
+                  readOnly={isSubmitting}
                 />
                 {errors.full_name && (
                   <p className="text-red-500 text-sm mt-1">{errors.full_name.message}</p>
@@ -116,6 +111,7 @@ export default function RegisterMainScreen() {
                   placeholder="Enter Email Address"
                   className="mt-1 py-3 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                   {...register('email')}
+                  readOnly={isSubmitting}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
@@ -129,6 +125,7 @@ export default function RegisterMainScreen() {
                   type="password"
                   placeholder="Enter Password"
                   className="mt-1 py-3 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                  readOnly={isSubmitting}
                   {...register('password')}
                 />
                 {errors.password && (
@@ -139,9 +136,10 @@ export default function RegisterMainScreen() {
 
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="cursor-pointer w-full mt-6 py-3 bg-green-900 hover:bg-emerald-800 text-white font-medium"
             >
-              Continue
+              {isSubmitting ? 'Submitting' : 'Continue'}
             </Button>
 
             <p className="text-center text-sm text-gray-600 mt-6">

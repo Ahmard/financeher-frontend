@@ -1,9 +1,9 @@
+import type { NextRequest } from "next/server";
 import { withAuth } from "next-auth/middleware";
 import { COOKIE_NAMES } from "@/lib/constants/app";
-import type { NextRequest } from "next/server";
 
 // Routes that are accessible without authentication
-const guestRoutes = ['/', '/login', '/register', '/welcome'];
+const guestRoutes = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
 
 // Pattern to ignore requests to static assets
 const PUBLIC_FILE = /\.(.*)$/;
