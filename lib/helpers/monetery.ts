@@ -4,16 +4,16 @@ export function formatNumber(number: number, minFractionDigits = 2) {
 	}).format(number);
 }
 
-export function formatMoneyAmount(
+export function formatMoney(
 	number: number,
 	minFractionDigits = 2,
-	currencyCode = 'NGN',
+	currencyCode = 'USD',
 ) {
 	if ('NGN' === currencyCode) {
 		return `&#8358;${formatNumber(number, minFractionDigits)}`;
 	}
 
-	return new Intl.NumberFormat('en-NG', {
+	return new Intl.NumberFormat('en-US', {
 		currency: currencyCode,
 		style: 'currency',
 		minimumFractionDigits: minFractionDigits,
@@ -59,7 +59,7 @@ export function formatMoneyAmountDisplay(
 		const amount = formatted.slice(0, -1);
 		const unit = formatted.slice(formatted.length - 2, 1);
 
-		return formatMoneyAmount(Number.parseInt(amount));
+		return formatMoney(Number.parseInt(amount));
 	}
 
 	return formatted;

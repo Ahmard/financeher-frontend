@@ -7,6 +7,7 @@ import type { DataIndex } from 'rc-table/lib/interface';
 
 export interface DataTableColumnProps<T> extends ColumnType<T> {
 	title: string;
+	sortable?: boolean;
 	dataIndex?: DataIndex<T> | keyof T;
 	canDisplay?: () => boolean;
 }
@@ -15,10 +16,10 @@ export interface DatatablePagination extends TablePaginationConfig {
 	total: number;
 	pageSize: number;
 	current: number;
-	size: 'default' | 'small' | undefined;
-	showQuickJumper: boolean;
-	showSizeChanger: boolean;
-	pageSizeOptions?: number[] | string[];
+	size?: 'default' | 'small';
+	showQuickJumper?: boolean;
+	showSizeChanger?: boolean;
+	pageSizeOptions?: string[];
 }
 
 export interface DatatableResponse<T> extends XhrResponse<T> {
@@ -26,9 +27,9 @@ export interface DatatableResponse<T> extends XhrResponse<T> {
 }
 
 export interface DataTableData<T> {
-	records: Array<T>;
+	data: Array<T>;
 	total_pages: number;
-	total_records: number;
+	recordsTotal: number;
 }
 
 export interface DataTableSorter {

@@ -18,14 +18,10 @@ export function prettyWords(string: string) {
 	return ucWords(string.replaceAll('_', ' '));
 }
 
-export function cmk(item: string | undefined) {
-	let localItem = item;
-
-	if (!item || !item.length) {
-		localItem = 'rand';
-	}
-
-	return `${localItem}-${Date.now()}`;
+let cmkCounter = 0;
+export function cmk(item?: string): string {
+	const prefix = item?.length ? item : 'rand';
+	return `${prefix}-${Date.now()}-${cmkCounter++}`;
 }
 
 export function formatFileSize(bytes: number, decimalPoint = 2): string {
