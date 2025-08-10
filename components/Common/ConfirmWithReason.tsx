@@ -16,6 +16,8 @@ interface ConfirmWithReasonProps {
   cancelText?: string;
   endpoint: string;
   placeholder: string;
+  // Provide some statements/warnings
+  statement?: string;
   httpMethod?: HttpMethod;
   visible: boolean;
   onVisibleChange?: (visible: boolean) => void;
@@ -34,6 +36,7 @@ const ConfirmWithReason: React.FC<ConfirmWithReasonProps> = (props) => {
     cancelText = 'Cancel',
     endpoint,
     placeholder,
+    statement,
     httpMethod = HttpMethod.Patch,
     visible,
     onVisibleChange,
@@ -123,6 +126,8 @@ const ConfirmWithReason: React.FC<ConfirmWithReasonProps> = (props) => {
       styles={{body: transformStyle}}
       // For custom modal rendering, you can use the wrapClassName or rootClassName props
     >
+      {statement && (<div className="my-2">{statement}</div>)}
+
       <Form layout="vertical" onFinish={submitForm}>
         <Form.Item
           label={label}
@@ -156,7 +161,7 @@ const ConfirmWithReason: React.FC<ConfirmWithReasonProps> = (props) => {
             loading={isSubmitting}
             className="ms-2"
           >
-            {okText}
+            {isSubmitting ? 'Processing...' : okText}
           </Button>
         </div>
       </Form>

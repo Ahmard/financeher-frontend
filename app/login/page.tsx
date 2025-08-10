@@ -62,7 +62,6 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const callbackUrl = getCallbackUrl("/dashboard");
 
       const login_response = await signIn("credentials", {
         redirect: false,
@@ -76,7 +75,16 @@ export default function LoginPage() {
         const sess = await getSession()
         prepareLoggedAccount(sess?.accessToken as string)
 
-        showMessage('Login successful')
+        showMessage('Login successful');
+
+        let fallbackCallbackUrl = '/dashboard';
+        const userRoles = sess?.user.auth_data.role_names;
+        if (userRoles.includes('SUPER_ADMIN') || userRoles.includes('ADMIN')) {
+          fallbackCallbackUrl = '/admin';
+        }
+
+        const callbackUrl = getCallbackUrl(fallbackCallbackUrl);
+
         setTimeout(() => redirect(callbackUrl), 50)
       } else {
         // LOGIN FAILURE

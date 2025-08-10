@@ -6,6 +6,7 @@ import {
   BarChart3,
   Bell,
   BookOpen,
+  BrainCircuitIcon,
   ChevronsUpDown,
   HelpCircle,
   List,
@@ -35,6 +36,7 @@ interface IProps {
 export enum CurrentPage {
   Dashboard = 'dashboard',
   Users = 'users',
+  Plans = 'plans',
   Opportunities = 'opportunities',
   LoanList = 'loan-list',
   Resources = 'resources',
@@ -118,6 +120,16 @@ const AdminLayout = (props: IProps) => {
               <div className="flex items-center gap-3">
                 <TrendingUp className="w-4 h-4 lg:w-5 lg:h-5"/>
                 <span className="text-sm lg:text-base">Opportunities</span>
+              </div>
+            </div>
+          </Link>
+
+          <Link href="/admin/plans" className="!text-white">
+            <div
+              className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl  cursor-pointer ${theCurrentPage === CurrentPage.Plans ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
+              <div className="flex items-center gap-3">
+                <BrainCircuitIcon className="w-4 h-4 lg:w-5 lg:h-5"/>
+                <span className="text-sm lg:text-base">Plans</span>
               </div>
             </div>
           </Link>
