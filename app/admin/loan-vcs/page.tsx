@@ -10,14 +10,14 @@ import DataTable from "@/components/Common/DataTable";
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {apiUrl} from "@/lib/helpers/url";
-import type {Opportunity} from "@/lib/models/opportunity";
 import type {DataTableColumnProps} from "@/lib/types/data.table";
 import {formatMoney} from "@/lib/helpers/monetery";
-import ActionButton from "@/components/App/Opportunity/ActionButton";
+import ActionButton from "@/components/App/LoanVc/ActionButton";
 import {cmk} from "@/lib/helpers/str";
 import Link from "next/link";
 import PageHeader from "@/components/Common/PageHeader";
 import {xhrGet} from "@/lib/xhr";
+import type {LoanVc} from "@/lib/models/loan.vc";
 
 interface IPageMetrics {
   all: number;
@@ -28,7 +28,7 @@ interface IPageMetrics {
 const OpportunitiesPage = () => {
   const [selectedTab, setSelectedTab] = useState('all');
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const [_selectedRows, setSelectedRows] = useState<Opportunity[]>([]);
+  const [_selectedRows, setSelectedRows] = useState<LoanVc[]>([]);
 
   const [cmkTable, setCmkTable] = useState<string | null>(cmk('table'));
 
@@ -38,7 +38,7 @@ const OpportunitiesPage = () => {
     closed: 0
   });
 
-  const endpointList = apiUrl('admin/opportunities', {
+  const endpointList = apiUrl('admin/loan-vcs', {
     'filter[status]': selectedTab,
   })
 
@@ -53,11 +53,11 @@ const OpportunitiesPage = () => {
     handleRefresh();
   };
 
-  const handleView = (_opportunity: Opportunity) => {
-    // redirect(`/admin/opportunities/${opportunity.id}`)
+  const handleView = (_opportunity: LoanVc) => {
+    // redirect(`/admin/loan-vcs/${opportunity.id}`)
   };
 
-  const handleRowDoubleClick = ({data}: { event: React.MouseEvent; data: Opportunity }) => {
+  const handleRowDoubleClick = ({data}: { event: React.MouseEvent; data: LoanVc }) => {
     handleView(data)
   };
 
@@ -65,22 +65,22 @@ const OpportunitiesPage = () => {
     setCmkTable(cmk('table'));
   };
 
-  const handleRowSelection = (selectedRowKeys: string[], selectedRows: Opportunity[]) => {
+  const handleRowSelection = (selectedRowKeys: string[], selectedRows: LoanVc[]) => {
     setSelectedRowKeys(selectedRowKeys);
     setSelectedRows(selectedRows);
   };
 
   const fetchPageMetrics = () => {
-    xhrGet<IPageMetrics>(apiUrl('admin/opportunities/page-metrics'))
+    xhrGet<IPageMetrics>(apiUrl('admin/loan-vcs/page-metrics'))
       .then(resp => {
         setPageMetrics(resp.data)
       })
   }
 
-  const columns: DataTableColumnProps<Opportunity>[] = [
+  const columns: DataTableColumnProps<LoanVc>[] = [
     {
-      dataIndex: 'name',
-      title: 'Opportunity',
+      dataIndex: 'organisation',
+      title: 'Organisation',
       width: '40%',
       sortable: true,
       render: (value: string) => (
@@ -124,7 +124,7 @@ const OpportunitiesPage = () => {
       width: '10%',
       align: 'left' as const,
       render: (value: string) => (
-        <span className="text-gray-700">{value}</span>
+        <span className="font-medium text-gray-900" dangerouslySetInnerHTML={{__html: value}}/>
       ),
     },
     {
@@ -132,7 +132,7 @@ const OpportunitiesPage = () => {
       title: '',
       width: '5%',
       align: 'center' as const,
-      render: (_: string, record: Opportunity) => (
+      render: (_: string, record: LoanVc) => (
         <ActionButton opp={record} onRefresh={handleRefresh}/>
       ),
     },
@@ -143,16 +143,16 @@ const OpportunitiesPage = () => {
   }, []);
 
   return (
-    <AdminLayout currentPage={CurrentPage.Opportunities}>
+    <AdminLayout currentPage={CurrentPage.LoanList}>
       <div className="p-6 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <PageHeader name="Opportunities"/>
+            <PageHeader name="Loans/VCs"/>
 
-            <Link href="/admin/opportunities/create">
+            <Link href="/admin/loan-vcs/create">
               <Button className="cursor-pointer bg-green-700 hover:bg-green-800 text-white">
-                Create Opportunity
+                Create
               </Button>
             </Link>
           </div>
@@ -176,7 +176,7 @@ const OpportunitiesPage = () => {
           </div>
 
           {/* DataTable */}
-          <DataTable<Opportunity>
+          <DataTable<LoanVc>
             key={cmkTable}
             rowKey="id"
             endpoint={endpointList}

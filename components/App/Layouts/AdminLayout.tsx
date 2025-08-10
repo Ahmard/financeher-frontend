@@ -113,7 +113,8 @@ const AdminLayout = (props: IProps) => {
           </Link>
 
           <Link href="/admin/opportunities" className="!text-white">
-            <div className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl  cursor-pointer ${theCurrentPage === CurrentPage.Opportunities ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
+            <div
+              className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl  cursor-pointer ${theCurrentPage === CurrentPage.Opportunities ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
               <div className="flex items-center gap-3">
                 <TrendingUp className="w-4 h-4 lg:w-5 lg:h-5"/>
                 <span className="text-sm lg:text-base">Opportunities</span>
@@ -121,28 +122,34 @@ const AdminLayout = (props: IProps) => {
             </div>
           </Link>
 
-          <div className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.Users ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
+          <div
+            className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.Users ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
             <div className="flex items-center gap-3">
               <Users className="w-4 h-4 lg:w-5 lg:h-5"/>
               <span className="text-sm lg:text-base">Users</span>
             </div>
           </div>
 
-          <div className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.LoanList ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
-            <div className="flex items-center gap-3">
-              <List className="w-4 h-4 lg:w-5 lg:h-5"/>
-              <span className="text-sm lg:text-base">Loans/VC List</span>
+          <Link href="/admin/loan-vcs" className="!text-white">
+            <div
+              className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.LoanList ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
+              <div className="flex items-center gap-3">
+                <List className="w-4 h-4 lg:w-5 lg:h-5"/>
+                <span className="text-sm lg:text-base">Loans/VC List</span>
+              </div>
             </div>
-          </div>
+          </Link>
 
-          <div className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.Resources ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
+          <div
+            className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.Resources ? 'bg-[#214F47]' : 'hover:bg-emerald-700'}`}>
             <div className="flex items-center gap-3">
               <BookOpen className="w-4 h-4 lg:w-5 lg:h-5"/>
               <span className="text-sm lg:text-base">Resources</span>
             </div>
           </div>
 
-          <div className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.Settings ? 'bg-[#214F47]' : ''}`}>
+          <div
+            className={`px-4 lg:px-6 py-3 mt-1 rounded-4xl cursor-pointer ${theCurrentPage === CurrentPage.Settings ? 'bg-[#214F47]' : ''}`}>
             <div className="flex items-center gap-3">
               <Settings className="w-4 h-4 lg:w-5 lg:h-5"/>
               <span className="text-sm lg:text-base">Settings</span>

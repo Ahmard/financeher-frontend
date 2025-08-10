@@ -16,6 +16,7 @@ import {HttpMethod} from "@/lib/enums/http";
 import type {DataTableData} from "@/lib/types/data.table";
 import type {SelectableItem} from "@/lib/types/selectable";
 import {Label} from "@/components/ui/label";
+import {cmk} from "@/lib/helpers/str";
 
 interface IBaseData {
   [key: string]: any;
@@ -36,8 +37,8 @@ interface IProps<T = SelectableItem> {
   items?: T[];
   // Whether to embed label in value, turn the format of value from string to { value: string, label: ReactNode }
   labelInValue?: boolean;
-  labelField?: string;
-  valueField?: string;
+  labelField: keyof T;
+  valueField: keyof T;
   labelRender?: (props: SelectableItem<T>) => React.ReactNode;
   queryParam?: Record<string, any>;
   postPayload?: Record<string, any> | (() => Record<string, any>);
@@ -66,8 +67,8 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
     adderValueInLowercase = false,
     items,
     labelInValue = true,
-    labelField = 'label',
-    valueField = 'value',
+    labelField,
+    valueField,
     queryParam = {},
     postPayload = {},
     httpMethod = HttpMethod.Get,
@@ -80,23 +81,47 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
 
   const multiple = mode === 'multiple' || mode === 'tags';
 
-  const [data, setData] = useState<T[]>([]);
+  const [data, setData] = useState<SelectableItem<T>[]>([]);
   const [fetching, setFetching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [adderValue, setAdderValue] = useState('');
   const [searchValue, setSearchValue] = useState('');
-  const [selectedValue, setSelectedValue] = useState<SelectedItem<T> | undefined>(defaultValue);
   const [open, setOpen] = useState(false);
+
+  // Initialize selectedValue based on mode and defaultValue
+  const getInitialValue = () => {
+    if (multiple) {
+      return Array.isArray(defaultValue) ? defaultValue : (defaultValue ? [defaultValue] : []);
+    }
+    return defaultValue;
+  };
+
+  const [selectedValue, setSelectedValue] = useState<SelectedItem<T> | undefined>(getInitialValue());
 
   // Update selected value when prop changes
   useEffect(() => {
-    setSelectedValue(defaultValue);
-  }, [defaultValue]);
+    if (multiple) {
+      setSelectedValue(Array.isArray(defaultValue) ? defaultValue : (defaultValue ? [defaultValue] : []));
+    } else {
+      setSelectedValue(defaultValue);
+    }
+  }, [defaultValue, multiple]);
 
   // Initialize with items if provided
   useEffect(() => {
     if (items) {
-      setData(items);
+      setData(items.map((item) => {
+        return {
+          option: item,
+          value: item[valueField],
+          label: labelRender ? labelRender({
+            option: item,
+            label: labelField,
+            value: valueField,
+          }) : item[labelField],
+        } as SelectableItem<T>;
+      }));
+
       setHasSearched(true);
     }
   }, [items]);
@@ -126,10 +151,10 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
           response = await xhrGet<DataTableData<T>>(endpointUrl, query);
         }
 
-        const hasMultipleLabels = labelField?.includes(',');
-        const splLabel = hasMultipleLabels ? labelField?.split(',') : [];
+        const hasMultipleLabels = (labelField as string)?.includes(',');
+        const splLabel = hasMultipleLabels ? (labelField as string)?.split(',') : [];
 
-        const processedData = response.data.data.map((item) => {
+        const processedData: SelectableItem<T>[] = response.data.data.map((item) => {
           let label: React.ReactNode = '';
 
           if (hasMultipleLabels) {
@@ -147,10 +172,10 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
           }
 
           return {
-            ...item,
+            option: item,
             label: label,
             value: item[valueField],
-          };
+          } as SelectableItem<T>;
         });
 
         setData(processedData);
@@ -181,28 +206,33 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
   const addItem = () => {
     if (!adderValue.trim()) return;
 
-    const newItem = {
-      [labelField]: adderValue,
-      [valueField]: adderValueInLowercase ? adderValue.toLowerCase() : adderValue,
+    const newItem: SelectableItem<T> = {
       label: adderValue,
       value: adderValueInLowercase ? adderValue.toLowerCase() : adderValue,
-    } as unknown as T;
+      option: {
+        [valueField]: adderValue,
+        [labelField]: adderValue,
+      } as T,
+    };
 
     setData(prev => [...prev, newItem]);
     setAdderValue('');
   };
 
-  const handleSelect = (currentValue: string) => {
+  const handleSelect = (currentValue: string|number) => {
     const selectedOption = data.find(item => item.value === currentValue);
 
-    if (multiple && Array.isArray(selectedValue)) {
-      const exists = selectedValue.some((item: any) =>
+    if (multiple) {
+      // Ensure selectedValue is always an array for multiple mode
+      const currentSelection = Array.isArray(selectedValue) ? selectedValue : [];
+
+      const exists = currentSelection.some((item: any) =>
         (typeof item === 'object' ? item.value : item) === currentValue
       );
 
       if (exists) {
         // Remove item
-        const newValue = selectedValue.filter((item: any) =>
+        const newValue = currentSelection.filter((item: any) =>
           (typeof item === 'object' ? item.value : item) !== currentValue
         );
         setSelectedValue(newValue);
@@ -210,7 +240,7 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
       } else {
         // Add item
         const itemToAdd = labelInValue ? selectedOption : currentValue;
-        const newValue = [...selectedValue, itemToAdd];
+        const newValue = [...currentSelection, itemToAdd];
         setSelectedValue(newValue as SelectedItem<T>);
         onChange?.(labelInValue ? newValue : newValue.map((item: any) => typeof item === 'object' ? item.value : item), newValue);
       }
@@ -230,8 +260,9 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (multiple && Array.isArray(selectedValue)) {
-      const newValue = selectedValue.filter((item: any) =>
+    if (multiple) {
+      const currentSelection = Array.isArray(selectedValue) ? selectedValue : [];
+      const newValue = currentSelection.filter((item: any) =>
         (typeof item === 'object' ? item.value : item) !== valueToRemove
       );
       setSelectedValue(newValue);
@@ -242,8 +273,9 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
   const handleClear = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedValue(multiple ? [] : undefined);
-    onChange?.(multiple ? [] : undefined, undefined);
+    const newValue = multiple ? [] : undefined;
+    setSelectedValue(newValue);
+    onChange?.(newValue, undefined);
   };
 
   const getDisplayValue = (): string => {
@@ -260,13 +292,15 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
 
     // Find the label from data for simple values
     const found = data.find(item => item.value === selectedValue);
-    return found ? (found.label || found[labelField] || (selectedValue as string).toString()) : (selectedValue as string).toString();
+    return found ? found.option[labelField] : (selectedValue as string).toString();
   };
 
   const getSelectedItems = () => {
-    if (!multiple || !Array.isArray(selectedValue)) return [];
+    if (!multiple) return [];
 
-    return selectedValue.map((item: any) => {
+    const currentSelection = Array.isArray(selectedValue) ? selectedValue : [];
+
+    return currentSelection.map((item: any) => {
       if (typeof item === 'object') {
         return {
           value: item.value || item[valueField],
@@ -277,12 +311,12 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
       const found = data.find(dataItem => dataItem.value === item);
       return {
         value: item,
-        label: found ? (found.label || found[labelField] || item) : item
+        label: found ? (found.option[labelField] || item) : item
       };
     });
   };
 
-  const isSelected = (value: string): boolean => {
+  const isSelected = (value: string|number): boolean => {
     if (!selectedValue) return false;
 
     if (multiple && Array.isArray(selectedValue)) {
@@ -356,7 +390,7 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
                           }}
                           onClick={(e) => handleRemoveItem(item.value, e)}
                         >
-                          <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                          <X className="h-3 w-3 text-muted-foreground hover:text-foreground"/>
                         </button>
                       )}
                     </Badge>
@@ -374,10 +408,10 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
                   onClick={handleClear}
                   className="hover:text-foreground text-muted-foreground p-1"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4"/>
                 </button>
               )}
-              <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50"/>
             </div>
           </div>
         </Button>
@@ -404,13 +438,13 @@ const Selectable = <T extends IBaseData>(props: IProps<T>) => {
                 {data.length > 0 && (
                   <CommandGroup>
                     {data.map((item) => {
-                      const itemValue = item.value || item[valueField];
-                      const itemLabel = item.label || item[labelField] || item[valueField] || 'Unnamed';
+                      const itemValue = (item.value || item.option[valueField]) as string | number;
+                      const itemLabel = (item.label || item.option[labelField]) as string | number;
 
                       return (
                         <CommandItem
-                          key={itemValue}
-                          value={itemValue}
+                          key={cmk()}
+                          value={itemValue as string}
                           onSelect={() => handleSelect(itemValue)}
                           className="cursor-pointer"
                         >

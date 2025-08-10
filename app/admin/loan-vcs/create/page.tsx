@@ -22,22 +22,22 @@ import PageTopBackLink from "@/components/Common/PageTopBackLink";
 
 // Improved Zod schema with separate min/max amount fields
 const opportunitySchema = z.object({
-  name: z.string().min(1, "Opportunity name is required").min(3, "Opportunity name must be at least 3 characters"),
+  organisation: z.string().min(1, "Organisation name is required").min(3, "Organisation name must be at least 3 characters"),
   min_amount: z.number().min(0, "Minimum amount must be 0 or greater"),
   max_amount: z.number().min(0, "Maximum amount must be 0 or greater"),
   business_type_id: z.string().min(1, "Business type is required"),
   opportunity_type_id: z.string().min(1, "Sector is required"),
   closing_at: z.string().min(1, "Closing date is required"),
-  country_id: z.string().min(1, "Location is required"),
+  country_ids: z.array(z.string().min(1)).min(1, "At least one location is required"),
   application_url: z.url("Invalid URL format").min(1, "Application link is required"),
   logoImage: z.any().optional(),
-  overview: z.string().min(1, "Overview is required").min(10, "Overview must be at least 10 characters"),
+  description: z.string().min(1, "Description is required").min(10, "Description must be at least 10 characters"),
 }).refine((data) => data.max_amount >= data.min_amount, {
   message: "Maximum amount must be greater than or equal to minimum amount",
   path: ["maxAmount"],
 });
 
-type OpportunityFormData = z.infer<typeof opportunitySchema>;
+type LoanVcFormData = z.infer<typeof opportunitySchema>;
 
 export default function OpportunityCreatePage() {
   const {
@@ -45,29 +45,32 @@ export default function OpportunityCreatePage() {
     handleSubmit,
     setValue,
     formState: {errors},
-  } = useForm<OpportunityFormData>({
+  } = useForm<LoanVcFormData>({
     resolver: zodResolver(opportunitySchema),
   });
 
   const {showMessage} = useMessage()
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = (data: OpportunityFormData) => {
+  const onSubmit = (data: LoanVcFormData) => {
     console.log(data)
     setIsSubmitting(true);
 
     const formData = new FormData();
 
     // Append fields with snake_case keys
-    formData.append("name", data.name);
+    formData.append("organisation", data.organisation);
     formData.append("min_amount", String(data.min_amount));
     formData.append("max_amount", String(data.max_amount));
-    formData.append("country_id", data.country_id);
     formData.append("business_type_id", data.business_type_id);
     formData.append("opportunity_type_id", data.opportunity_type_id);
     formData.append("closing_at", data.closing_at);
     formData.append("application_url", data.application_url);
-    formData.append("overview", data.overview);
+    formData.append("description", data.description);
+
+    data.country_ids.forEach(id => {
+      formData.append("country_ids[]", id);
+    })
 
     // Append file if present
     const logoFile = (data.logoImage as FileList)?.[0];
@@ -75,27 +78,27 @@ export default function OpportunityCreatePage() {
       formData.append("logo", logoFile); // snake_case for file too
     }
 
-    xhrPost<Opportunity>(apiUrl('admin/opportunities'), formData, {
+    xhrPost<Opportunity>(apiUrl('admin/loan-vcs'), formData, {
       headers: {
         'Content-Type': undefined, // Let browser set multipart/form-data
       },
     })
       .then(_resp => {
         showMessage("Opportunity created successfully");
-        setTimeout(() => redirect(`/admin/opportunities`), 500);
+        setTimeout(() => redirect(`/admin/loan-vcs`), 500);
       })
       .finally(() => setIsSubmitting(false));
   };
 
 
-  const onCreateAndAddNew = (data: OpportunityFormData) => {
+  const onCreateAndAddNew = (data: LoanVcFormData) => {
     console.log("Create and add new:", data);
     // Handle create and add new functionality
   };
 
 
-  const onLocationSelected = (selected: SelectableItem<Opportunity>) => {
-    setValue('country_id', selected.value as string)
+  const onLocationSelected = (selected: SelectableItem<Opportunity>[]) => {
+    setValue('country_ids', selected.map(c => c.option.id))
   };
 
   const onBusinessTypeSelected = (selected: SelectableItem<Opportunity>) => {
@@ -111,28 +114,28 @@ export default function OpportunityCreatePage() {
   const endpointOpportunityTypes = apiUrl('misc/opportunity-types')
 
   return (
-    <AdminLayout currentPage={CurrentPage.Opportunities}>
+    <AdminLayout currentPage={CurrentPage.LoanList}>
       <div className="pb-6 px-6 max-w-4xl">
         {/* Header */}
-        <PageTopBackLink href="/admin/opportunities">
-          Back to Opportunities
+        <PageTopBackLink href="/admin/loan-vcs">
+          Back to Loan/VCs
         </PageTopBackLink>
 
-        <PageHeader name="Create New Opportunity" className="mb-4"/>
+        <PageHeader name="Create New Loan/VC" className="mb-5"/>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Opportunity Name */}
           <div className="space-y-2">
-            <Label htmlFor="opportunity-name">Opportunity Name</Label>
+            <Label htmlFor="opportunity-name">Organisation Name</Label>
             <Input
               id="opportunity-name"
-              placeholder="Enter Opportunity Name"
+              placeholder="Enter Organisation Name"
               className="w-full"
-              {...register("name")}
+              {...register("organisation")}
             />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
+            {errors.organisation && (
+              <p className="text-sm text-red-500">{errors.organisation.message}</p>
             )}
           </div>
 
@@ -220,14 +223,15 @@ export default function OpportunityCreatePage() {
           <div className="space-y-2">
             <Label>Location</Label>
             <Selectable
+              mode="multiple"
               valueField="id"
               labelField="name"
               placeholder="Choose Location"
               endpoint={endpointCountries}
               onChange={onLocationSelected}
             />
-            {errors.country_id && (
-              <p className="text-sm text-red-500">{errors.country_id.message}</p>
+            {errors.country_ids && (
+              <p className="text-sm text-red-500">{errors.country_ids.message}</p>
             )}
           </div>
 
@@ -260,17 +264,17 @@ export default function OpportunityCreatePage() {
             )}
           </div>
 
-          {/* Overview & Eligibility Criteria */}
+          {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="overview">Overview & Eligibility Criteria</Label>
+            <Label htmlFor="overview">Description</Label>
             <Textarea
               id="overview"
-              placeholder="Enter Overview & Eligibility Criteria"
+              placeholder="Brief Description"
               className="min-h-32 resize-none"
-              {...register("overview")}
+              {...register("description")}
             />
-            {errors.overview && (
-              <p className="text-sm text-red-500">{errors.overview.message}</p>
+            {errors.description && (
+              <p className="text-sm text-red-500">{errors.description.message}</p>
             )}
           </div>
 
@@ -280,7 +284,7 @@ export default function OpportunityCreatePage() {
               type="submit"
               className="cursor-pointer bg-[#006A4B] hover:bg-teal-700 text-white px-6"
               disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Opportunity'}
+              {isSubmitting ? 'Creating...' : 'Create'}
             </Button>
             <Button
               type="button"

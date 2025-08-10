@@ -2,9 +2,9 @@ import type { LooseObject } from '~/types/loose.object';
 import type * as React from 'react';
 
 export interface SelectableItem<T = LooseObject> extends LooseObject {
-	label: string;
-	value: string | number;
-	option?: T;
+	label: string | number | symbol;
+	value: string | number | symbol;
+	option: T;
 }
 
 export type RawValueType = string | number;
