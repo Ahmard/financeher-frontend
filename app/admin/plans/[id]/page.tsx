@@ -48,6 +48,8 @@ export default function PlanInfoPage() {
     try {
       setIsLoading(true);
       const response = await xhrGet<Plan>(apiUrl(`admin/plans/${planId}`));
+      const plan = response.data;
+      plan.features = JSON.parse(plan.features as any as string);
       setPlan(response.data);
     } catch (error) {
       showMessage("Failed to load plan details", "error");

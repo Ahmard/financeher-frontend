@@ -75,7 +75,7 @@ export default function PlanEditPage() {
       setIsLoading(true);
       const response = await xhrGet<Plan>(apiUrl(`admin/plans/${planId}`));
       const plan = response.data;
-
+      plan.features = JSON.parse(plan.features as any as string);
       setOriginalPlan(plan);
 
       // Transform the plan data to match form structure

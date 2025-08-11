@@ -3,6 +3,7 @@
 import {CornerLeftUpIcon} from "lucide-react";
 import Image from "next/image";
 import type React from "react";
+import Link from "next/link";
 
 interface IProps {
   children: React.ReactNode;
@@ -52,11 +53,14 @@ export default function AuthLayout({children}: IProps) {
             </h1>
 
             {/* Return to homepage link */}
-            <button type="button"
-                    className="flex items-center space-x-2 text-white/90 hover:text-white transition-colors">
-              <CornerLeftUpIcon/>
-              <span className="text-sm">Return to Homepage</span>
-            </button>
+            <Link href="/">
+              <button
+                type="button"
+                className="cursor-pointer flex items-center space-x-2 text-white/90 hover:text-white transition-colors">
+                <CornerLeftUpIcon/>
+                <span className="text-sm">Return to Homepage</span>
+              </button>
+            </Link>
           </div>
         </div>
       </div>

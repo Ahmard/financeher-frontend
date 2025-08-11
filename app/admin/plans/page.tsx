@@ -128,7 +128,7 @@ const OpportunitiesPage = () => {
   }, []);
 
   return (
-    <AdminLayout currentPage={CurrentPage.Opportunities}>
+    <AdminLayout currentPage={CurrentPage.Plans}>
       <div className="p-6 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
