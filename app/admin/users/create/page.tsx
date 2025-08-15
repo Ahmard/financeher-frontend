@@ -25,7 +25,7 @@ const opportunitySchema = z.object({
   name: z.string().min(1, "Opportunity name is required").min(3, "Opportunity name must be at least 3 characters"),
   min_amount: z.number().min(0, "Minimum amount must be 0 or greater"),
   max_amount: z.number().min(0, "Maximum amount must be 0 or greater"),
-  industry_id: z.string().min(1, "Industry type is required"),
+  business_type_id: z.string().min(1, "Business type is required"),
   opportunity_type_id: z.string().min(1, "Sector is required"),
   closing_at: z.string().min(1, "Closing date is required"),
   country_id: z.string().min(1, "Location is required"),
@@ -63,7 +63,7 @@ export default function OpportunityCreatePage() {
     formData.append("min_amount", String(data.min_amount));
     formData.append("max_amount", String(data.max_amount));
     formData.append("country_id", data.country_id);
-    formData.append("industry_id", data.industry_id);
+    formData.append("business_type_id", data.business_type_id);
     formData.append("opportunity_type_id", data.opportunity_type_id);
     formData.append("closing_at", data.closing_at);
     formData.append("application_url", data.application_url);
@@ -98,17 +98,17 @@ export default function OpportunityCreatePage() {
     setValue('country_id', selected.value as string)
   };
 
-  const onIndustrySelected = (selected: SelectableItem<Opportunity>) => {
-    setValue('industry_id', selected.value as string)
+  const onBusinessTypeSelected = (selected: SelectableItem<Opportunity>) => {
+    setValue('business_type_id', selected.value as string)
   };
 
   const onOpportunityTypeSelected = (selected: SelectableItem<Opportunity>) => {
     setValue('opportunity_type_id', selected.value as string)
   };
 
-  const endpointIndustries = apiUrl('misc/industries')
-    const endpointCountries = apiUrl('misc/geo/countries')
-    const endpointOpportunityTypes = apiUrl('misc/opportunity-types')
+  const endpointCountries = apiUrl('misc/geo/countries')
+  const endpointBusinessTypes = apiUrl('misc/business-types')
+  const endpointOpportunityTypes = apiUrl('misc/opportunity-types')
 
   return (
     <AdminLayout currentPage={CurrentPage.Opportunities}>
@@ -174,11 +174,11 @@ export default function OpportunityCreatePage() {
               valueField="id"
               labelField="name"
               placeholder="Choose Business Secgor"
-              endpoint={endpointIndustries}
-              onChange={onIndustrySelected}
+              endpoint={endpointBusinessTypes}
+              onChange={onBusinessTypeSelected}
             />
-            {errors.industry_id && (
-              <p className="text-sm text-red-500">{errors.industry_id.message}</p>
+            {errors.business_type_id && (
+              <p className="text-sm text-red-500">{errors.business_type_id.message}</p>
             )}
           </div>
 

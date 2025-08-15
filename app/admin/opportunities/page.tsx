@@ -159,20 +159,22 @@ const OpportunitiesPage = () => {
 
           {/* Tabs */}
           <div className="flex space-x-1 mb-6">
-            {tabs.map((tab) => (
-              <Button
-                key={tab.key}
-                variant={selectedTab === tab.key ? "default" : "ghost"}
-                onClick={() => changeTab(tab.key)}
-                className={`${
-                  selectedTab === tab.key
-                    ? 'bg-white text-gray-900 shadow-sm hover:bg-white'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                {tab.label}
-              </Button>
-            ))}
+            <div className="bg-[#E5F0ED] p-1 rounded-2xl">
+                {tabs.map((tab) => (
+                    <Button
+                        key={tab.key}
+                        variant={selectedTab === tab.key ? "default" : "ghost"}
+                        onClick={() => changeTab(tab.key)}
+                        className={`${
+                            selectedTab === tab.key
+                                ? 'bg-white !text-[#214F47] shadow-sm hover:bg-white'
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        }`}
+                    >
+                        {tab.label}
+                    </Button>
+                ))}
+            </div>
           </div>
 
           {/* DataTable */}

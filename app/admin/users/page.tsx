@@ -6,40 +6,47 @@ import type React from 'react';
 import {useEffect, useState} from 'react';
 import AdminLayout, {CurrentPage} from "@/components/App/Layouts/AdminLayout";
 import DataTable from "@/components/Common/DataTable";
-import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {apiUrl} from "@/lib/helpers/url";
 import type {DataTableColumnProps} from "@/lib/types/data.table";
-import {formatMoney} from "@/lib/helpers/monetery";
-import ActionButton from "@/components/App/Plan/ActionButton";
+import ActionButton from "@/components/App/User/ActionButton";
 import {cmk} from "@/lib/helpers/str";
 import Link from "next/link";
 import PageHeader from "@/components/Common/PageHeader";
 import {xhrGet} from "@/lib/xhr";
-import type {Plan} from "@/lib/models/plan";
-import {redirect} from "next/navigation";
+import {User} from "@/lib/models/user";
+import StatusBadge from "@/components/App/User/StatusBadge";
+import {usePageTitle} from "@/lib/helpers/page.helper";
 
 interface IPageMetrics {
     all: number;
+    active: number;
+    suspended: number;
 }
 
-const OpportunitiesPage = () => {
+const UsersPage = () => {
+    usePageTitle('Users');
+
     const [selectedTab, setSelectedTab] = useState('all');
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-    const [_selectedRows, setSelectedRows] = useState<Plan[]>([]);
+    const [_selectedRows, setSelectedRows] = useState<User[]>([]);
 
     const [cmkTable, setCmkTable] = useState<string | null>(cmk('table'));
 
     const [pageMetrics, setPageMetrics] = useState<IPageMetrics>({
         all: 0,
+        active: 0,
+        suspended: 0
     });
 
-    const endpointList = apiUrl('admin/plans', {
+    const endpointList = apiUrl('admin/users', {
         'filter[status]': selectedTab,
     })
 
     const tabs = [
         {key: 'all', label: `All (${pageMetrics.all})`, count: pageMetrics.all},
+        {key: 'active', label: `Active (${pageMetrics.active})`, count: pageMetrics.active},
+        {key: 'inactive', label: `Suspended (${pageMetrics.suspended})`, count: pageMetrics.suspended}
     ];
 
     const changeTab = (tab: string) => {
@@ -47,11 +54,11 @@ const OpportunitiesPage = () => {
         handleRefresh();
     };
 
-    const handleView = (plan: Plan) => {
-        redirect(`/admin/plans/${plan.id}`)
+    const handleView = (_opportunity: User) => {
+        // redirect(`/admin/opportunities/${opportunity.id}`)
     };
 
-    const handleRowDoubleClick = ({data}: { event: React.MouseEvent; data: Plan }) => {
+    const handleRowDoubleClick = ({data}: { event: React.MouseEvent; data: User }) => {
         handleView(data)
     };
 
@@ -59,55 +66,61 @@ const OpportunitiesPage = () => {
         setCmkTable(cmk('table'));
     };
 
-    const handleRowSelection = (selectedRowKeys: string[], selectedRows: Plan[]) => {
+    const handleRowSelection = (selectedRowKeys: string[], selectedRows: User[]) => {
         setSelectedRowKeys(selectedRowKeys);
         setSelectedRows(selectedRows);
     };
 
     const fetchPageMetrics = () => {
-        xhrGet<IPageMetrics>(apiUrl('admin/plans/page-metrics'))
+        xhrGet<IPageMetrics>(apiUrl('admin/users/page-metrics'))
             .then(resp => {
                 setPageMetrics(resp.data)
             })
     }
 
-    const columns: DataTableColumnProps<Plan>[] = [
+    const columns: DataTableColumnProps<User>[] = [
         {
-            dataIndex: 'name',
+            dataIndex: 'business_name',
+            title: 'Business',
+            width: '40%',
+            sortable: true,
+        },
+        {
+            dataIndex: 'first_name',
             title: 'Name',
             width: '40%',
             sortable: true,
-            render: (value: string) => (
-                <span className="font-medium text-gray-900" dangerouslySetInnerHTML={{__html: value}}/>
+            render: (_: string, record) => (
+                <span>{record.first_name} {record.last_name}</span>
             ),
         },
         {
-            dataIndex: 'price',
-            title: 'Price',
+            dataIndex: 'email',
+            title: 'Email',
             width: '20%',
             align: 'left' as const,
             sortable: true,
-            render: (value: number) => (
-                <span className="text-gray-700">{formatMoney(value, 0)}</span>
-            ),
         },
         {
-            dataIndex: 'billing_cycle',
-            title: 'Billing Cycle',
-            width: '15%',
+            dataIndex: 'mobile_number',
+            title: 'Mobile Number',
+            width: '20%',
             align: 'left' as const,
             sortable: true,
-            render: (value: string) => (
-                <Badge variant="outline">
-                    {value}
-                </Badge>
-            ),
+        },
+        {
+            dataIndex: 'status',
+            title: 'Status',
+            width: '10%',
+            align: 'left' as const,
+            render: (value: string) => <StatusBadge status={value}/>,
         },
         {
             dataIndex: 'created_at',
             title: 'Created At',
-            width: '10%',
+            width: '15%',
             align: 'left' as const,
+            sortable: true,
             render: (value: string) => (
                 <span className="text-gray-700">{value}</span>
             ),
@@ -117,8 +130,8 @@ const OpportunitiesPage = () => {
             title: '',
             width: '5%',
             align: 'center' as const,
-            render: (_: string, record: Plan) => (
-                <ActionButton plan={record} onRefresh={handleRefresh}/>
+            render: (_: string, record: User) => (
+                <ActionButton user={record} onRefresh={handleRefresh}/>
             ),
         },
     ];
@@ -128,16 +141,16 @@ const OpportunitiesPage = () => {
     }, []);
 
     return (
-        <AdminLayout currentPage={CurrentPage.Plans}>
+        <AdminLayout currentPage={CurrentPage.Users}>
             <div className="p-6 bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6">
-                        <PageHeader name="Plans"/>
+                        <PageHeader name="Users"/>
 
-                        <Link href="/admin/plans/create">
+                        <Link href="/admin/users/create">
                             <Button className="cursor-pointer bg-green-700 hover:bg-green-800 text-white">
-                                Create Plan
+                                Invite User
                             </Button>
                         </Link>
                     </div>
@@ -152,7 +165,7 @@ const OpportunitiesPage = () => {
                                     onClick={() => changeTab(tab.key)}
                                     className={`${
                                         selectedTab === tab.key
-                                            ? 'bg-white text-gray-900 shadow-sm hover:bg-white'
+                                            ? 'bg-white !text-[#214F47] shadow-sm hover:bg-white'
                                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                                     }`}
                                 >
@@ -163,7 +176,7 @@ const OpportunitiesPage = () => {
                     </div>
 
                     {/* DataTable */}
-                    <DataTable<Plan>
+                    <DataTable<User>
                         key={cmkTable}
                         rowKey="id"
                         endpoint={endpointList}
@@ -171,7 +184,7 @@ const OpportunitiesPage = () => {
                         withSelection={true}
                         withTopSegment={false}
                         withPagination={true}
-                        searchPlaceholder="Search opportunities..."
+                        searchPlaceholder="Search users..."
                         pageSizeOptions={['10', '20', '50', '100']}
                         onRowSelected={handleRowSelection}
                         eventHandler={{
@@ -205,4 +218,4 @@ const OpportunitiesPage = () => {
     );
 };
 
-export default OpportunitiesPage;
+export default UsersPage;

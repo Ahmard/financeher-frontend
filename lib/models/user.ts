@@ -2,6 +2,7 @@ import BaseModel from '@/lib/models/base.model';
 
 export class User extends BaseModel {
 	invited_by: number | null;
+    business_name: string;
 	first_name: string;
 	last_name: string;
 	mobile_number: string;
