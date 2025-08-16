@@ -12,20 +12,21 @@ import {
     HelpCircle,
     LibraryBigIcon,
     LogOut,
-    Menu, SendIcon,
+    Menu,
+    SendIcon,
     Settings,
     User,
     X,
 } from 'lucide-react';
 import Image from "next/image";
 import {signOut, useSession} from "next-auth/react";
-import type React from 'react';
-import {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {DEFAULT_AVATAR} from "@/lib/constants/user";
 import {authUrl} from "@/lib/helpers/url";
 import type {AuthUserData} from "@/lib/types/auth";
 import Link from "next/link";
 import {clearBearerToken} from "@/lib/helpers/auth";
+import {useHandleUncompletedRegistration} from "@/lib/helpers/auth.client";
 
 interface IProps {
     children: React.ReactNode;
@@ -53,6 +54,8 @@ const CustomerLayout = (props: IProps) => {
     const {data: session} = useSession({required: true});
 
     const user: AuthUserData = session?.user;
+
+    useHandleUncompletedRegistration(user)
 
     const profilePicture = user?.profile_picture ? authUrl(user.profile_picture) : DEFAULT_AVATAR;
 
@@ -208,7 +211,7 @@ const CustomerLayout = (props: IProps) => {
                                         <Avatar size="large" src={profilePicture}/>
                                     </div>
                                     <span
-                                        className="text-xs lg:text-sm font-medium hidden sm:inline">{user.full_name}</span>
+                                        className="text-xs lg:text-sm font-medium hidden sm:inline">{user?.full_name}</span>
                                     <ChevronsUpDown className="ms-5 w-4 h-4 text-gray-500 hidden sm:inline"/>
                                 </button>
 
@@ -217,8 +220,8 @@ const CustomerLayout = (props: IProps) => {
                                     <div
                                         className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                                         <div className="px-4 py-3 mt-1 border-b border-gray-100">
-                                            <p className="text-sm font-medium text-gray-900">{user.full_name}</p>
-                                            <p className="text-xs text-gray-500">{user.email}</p>
+                                            <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
+                                            <p className="text-xs text-gray-500">{user?.email}</p>
                                         </div>
 
                                         <div className="py-1">

@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
         message: "You are already logged in",
       })
 
-      setTimeout(() => redirect("/dashboard"), 500);
+      setTimeout(() => redirect("/"), 500);
     }
 
     if (!token) {

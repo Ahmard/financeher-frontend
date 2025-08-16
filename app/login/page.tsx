@@ -54,7 +54,7 @@ export default function LoginPage() {
         message: "You are already logged in",
       })
 
-      setTimeout(() => redirect("/dashboard"), 50);
+      setTimeout(() => redirect("/"), 50);
     }
   }, [isLoggedIn]);
 
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
         showMessage('Login successful');
 
-        let fallbackCallbackUrl = '/dashboard';
+        let fallbackCallbackUrl = '/';
         const userRoles = sess?.user.auth_data.role_names;
         if (userRoles.includes('SUPER_ADMIN') || userRoles.includes('ADMIN')) {
           fallbackCallbackUrl = '/admin';

@@ -79,7 +79,7 @@ export default function PaymentCallbackPage() {
     };
 
     const handleGoHome = () => {
-        router.push('/dashboard');
+        router.push('/');
     };
 
     // Loading state

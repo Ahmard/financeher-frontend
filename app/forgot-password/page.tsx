@@ -50,7 +50,7 @@ export default function LoginPage() {
         message: "You are already logged in",
       })
 
-      // setTimeout(() => redirect("/dashboard"), 50);
+      // setTimeout(() => redirect("/"), 50);
     }
   }, [isLoggedIn]);
 

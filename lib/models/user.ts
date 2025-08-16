@@ -30,4 +30,5 @@ export enum UserRegistrationStage {
 	EmailVerification = 'email_verification',
 	PlanSubscription = 'plan_subscription',
 	AccountSetup = 'account_setup',
+	Completed = 'completed',
 }
