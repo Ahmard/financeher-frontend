@@ -11,7 +11,7 @@ import {Button} from '@/components/ui/button';
 import {apiUrl} from "@/lib/helpers/url";
 import type {DataTableColumnProps} from "@/lib/types/data.table";
 import {formatMoney} from "@/lib/helpers/monetery";
-import ActionButton from "@/components/App/Plan/ActionButton";
+import ActionButton from "@/components/App/Admin/Plan/ActionButton";
 import {cmk} from "@/lib/helpers/str";
 import Link from "next/link";
 import PageHeader from "@/components/Common/PageHeader";

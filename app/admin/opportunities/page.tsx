@@ -13,7 +13,7 @@ import {apiUrl} from "@/lib/helpers/url";
 import type {Opportunity} from "@/lib/models/opportunity";
 import type {DataTableColumnProps} from "@/lib/types/data.table";
 import {formatMoney} from "@/lib/helpers/monetery";
-import ActionButton from "@/components/App/Opportunity/ActionButton";
+import ActionButton from "@/components/App/Admin/Opportunity/ActionButton";
 import {cmk} from "@/lib/helpers/str";
 import Link from "next/link";
 import PageHeader from "@/components/Common/PageHeader";

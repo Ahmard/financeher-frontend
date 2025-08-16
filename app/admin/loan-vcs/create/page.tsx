@@ -109,8 +109,8 @@ export default function OpportunityCreatePage() {
     setValue('opportunity_type_id', selected.value as string)
   };
 
-  const endpointCountries = apiUrl('misc/geo/countries')
-  const endpointBusinessTypes = apiUrl('misc/business-types')
+    const endpointIndustries = apiUrl('misc/industries')
+    const endpointCountries = apiUrl('misc/geo/countries')
   const endpointOpportunityTypes = apiUrl('misc/opportunity-types')
 
   return (
@@ -177,7 +177,7 @@ export default function OpportunityCreatePage() {
               valueField="id"
               labelField="name"
               placeholder="Choose Business Secgor"
-              endpoint={endpointBusinessTypes}
+              endpoint={endpointIndustries}
               onChange={onBusinessTypeSelected}
             />
             {errors.business_type_id && (

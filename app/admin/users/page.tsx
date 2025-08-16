@@ -9,13 +9,13 @@ import DataTable from "@/components/Common/DataTable";
 import {Button} from '@/components/ui/button';
 import {apiUrl} from "@/lib/helpers/url";
 import type {DataTableColumnProps} from "@/lib/types/data.table";
-import ActionButton from "@/components/App/User/ActionButton";
+import ActionButton from "@/components/App/Admin/User/ActionButton";
 import {cmk} from "@/lib/helpers/str";
 import Link from "next/link";
 import PageHeader from "@/components/Common/PageHeader";
 import {xhrGet} from "@/lib/xhr";
 import {User} from "@/lib/models/user";
-import StatusBadge from "@/components/App/User/StatusBadge";
+import StatusBadge from "@/components/App/Admin/User/StatusBadge";
 import {usePageTitle} from "@/lib/helpers/page.helper";
 
 interface IPageMetrics {
