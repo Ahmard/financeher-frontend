@@ -1,4 +1,5 @@
 export const backendUrl = (uri?: string): string => {
+    uri = (uri && uri.startsWith('/')) ? uri.substring(1) : uri;
 	const prefix = process.env.NODE_ENV === 'development' ? '' : 'hydrogen/';
 	return `${process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL}/${prefix}${uri}`;
 };
