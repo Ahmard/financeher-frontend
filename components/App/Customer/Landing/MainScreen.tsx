@@ -9,6 +9,7 @@ import {greet, greetingIcon} from "@/lib/helpers/time";
 import RightSideFilters, {FilterData} from "@/components/App/Customer/Landing/RightSideFilters";
 import OpportunityListTable from "@/components/App/Customer/OpportunityListTable";
 import {apiUrl} from "@/lib/helpers/url";
+import {OppItemKind} from "@/lib/models/opportunity";
 
 const MainScreen: React.FC<IProps> = () => {
     const [aiRecommendation, setAiRecommendation] = useState<boolean>(true);
@@ -54,10 +55,10 @@ const MainScreen: React.FC<IProps> = () => {
                     {/* Opportunities List */}
                     <div className="flex-1 p-8">
                         <OpportunityListTable
-                            isSavedList={false}
                             endpoint={apiUrl('opportunities')}
                             aiRecommendation={aiRecommendation}
                             onFilterChange={setFilters}
+                            itemKind={OppItemKind.Normal}
                         />
                     </div>
 

@@ -1,20 +1,34 @@
-import {Opportunity} from "@/lib/models/opportunity";
+import {OppItemKind, Opportunity} from "@/lib/models/opportunity";
 import Image from "next/image";
 import {backendUrl} from "@/lib/helpers/url";
-import {Info, Sparkles} from "lucide-react";
+import {BookmarkCheckIcon, Info, SendIcon, Sparkles} from "lucide-react";
 import React from "react";
 import {formatMoney} from "@/lib/helpers/monetery";
 import Link from "next/link";
 
 interface IProps {
     opp: Opportunity;
-    isSaved?: boolean;
+    itemKind: OppItemKind;
 }
 
-export default function OpportunityItem({opp, isSaved}: IProps) {
-    const href = isSaved
-        ? `/opportunities/${opp['opportunity_id']}?kind=saved`
-        : `/opportunities/${opp.id}`;
+export default function OpportunityItem({opp, itemKind}: IProps) {
+    // const href = isSaved
+    //     ? `/opportunities/${opp['opportunity_id']}?kind=saved`
+    //     : `/opportunities/${opp.id}`;
+
+    let href: string;
+
+    switch (itemKind) {
+        case OppItemKind.Normal:
+            href = `/opportunities/${opp.id}`;
+            break;
+        case OppItemKind.Applied:
+            href = `/opportunities/${opp['opportunity_id']}?kind=applied`;
+            break;
+        case OppItemKind.Saved:
+            href = `/opportunities/${opp['opportunity_id']}?kind=saved`;
+            break;
+    }
 
     return (
         <Link href={href} className="cursor-pointer">
@@ -41,6 +55,20 @@ export default function OpportunityItem({opp, isSaved}: IProps) {
                             className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                             {opp.status}
                         </div>
+                        {opp.has_applied > 0 && (
+                            <div
+                                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                                <SendIcon className="w-3 h-3"/>
+                                Applied
+                            </div>
+                        )}
+                        {opp.is_saved > 0 && (
+                            <div
+                                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                                <BookmarkCheckIcon className="w-3 h-3"/>
+                                Saved
+                            </div>
+                        )}
                         {opp.is_ai_recommended && (
                             <div
                                 className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">

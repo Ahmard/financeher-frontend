@@ -8,7 +8,7 @@ import {useEffect, useState} from "react";
 import {Skeleton} from "antd";
 import {xhrDelete, xhrGet, xhrPost} from "@/lib/xhr";
 import {apiUrl, backendUrl} from "@/lib/helpers/url";
-import {Opportunity} from "@/lib/models/opportunity";
+import {OppItemKind, Opportunity} from "@/lib/models/opportunity";
 import {formatMoney} from "@/lib/helpers/monetery";
 import CustomerLayout, {CustomerCurrentPage} from "@/components/App/Layouts/CustomerLayout";
 import {useMessage} from "@/lib/hooks/message";
@@ -19,7 +19,7 @@ export default function OpportunityInfoPage() {
     const query = useSearchParams();
 
     const id = params.id;
-    const kind = query.get('kind');
+    const itemKind: OppItemKind | undefined = query.get('kind');
 
     const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
     const [loading, setLoading] = useState(true);
@@ -129,16 +129,52 @@ export default function OpportunityInfoPage() {
         );
     }
 
-    const currentPage = kind === 'saved'
-        ? CustomerCurrentPage.SavedOpportunities
-        : CustomerCurrentPage.Opportunities;
+    let currentPage: CustomerCurrentPage;
+
+    switch (itemKind) {
+        case OppItemKind.Applied:
+            currentPage = CustomerCurrentPage.AppliedOpportunities;
+            break;
+        case OppItemKind.Saved:
+            currentPage = CustomerCurrentPage.SavedOpportunities;
+            break;
+        default:
+            currentPage = CustomerCurrentPage.Opportunities;
+            break;
+    }
+
+    let backLink: string;
+    switch (itemKind) {
+        case OppItemKind.Applied:
+            backLink = `/applied-opportunities`;
+            break;
+        case OppItemKind.Saved:
+            backLink = `/saved-opportunities`;
+            break;
+        default:
+            backLink = `/opportunities`;
+            break;
+    }
+
+    let backLinkTitle: string;
+    switch (itemKind) {
+        case OppItemKind.Applied:
+            backLinkTitle = 'Applied Opportunities';
+            break;
+        case OppItemKind.Saved:
+            backLinkTitle = 'Saved Opportunities';
+            break;
+        default:
+            backLinkTitle = 'Opportunities';
+            break;
+    }
 
     return (
         <CustomerLayout currentPage={currentPage}>
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <PageTopBackLink href={kind === 'saved' ? '/saved-opportunities' : '/opportunities'}>
-                    Back to {kind === 'saved' ? 'Saved Opportunities' : 'Opportunities'}
+                <PageTopBackLink href={backLink}>
+                    Back to {backLinkTitle}
                 </PageTopBackLink>
 
                 {/* Main Content */}

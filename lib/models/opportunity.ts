@@ -19,3 +19,10 @@ export class Opportunity extends BaseModel {
 
 	creator_full_name: string;
 }
+
+
+export enum OppItemKind {
+    Normal = 'normal',
+    Applied = 'applied',
+    Saved = 'saved',
+}

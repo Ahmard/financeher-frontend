@@ -2,7 +2,7 @@
 
 import OpportunityItem from "@/components/App/Customer/Landing/OpportunityItem";
 import React, {useEffect, useState} from "react";
-import {Opportunity} from "@/lib/models/opportunity";
+import {OppItemKind, Opportunity} from "@/lib/models/opportunity";
 import {xhrGet} from "@/lib/xhr";
 import {DataTableData} from "@/lib/types/data.table";
 import {useMessage} from "@/lib/hooks/message";
@@ -15,15 +15,15 @@ export interface IProps {
     loadingMessage?: string;
     onFilterChange?: (filters: FilterData) => void;
     aiRecommendation: boolean;
-    isSavedList: boolean;
+    itemKind: OppItemKind;
 }
 
 export default function OpportunityListTable(props: IProps) {
     const {
         endpoint,
-        isSavedList,
         onFilterChange,
         aiRecommendation,
+        itemKind = OppItemKind.Normal,
         searchPlaceholder = 'Search for opportunities',
         loadingMessage = 'Loading opportunities...',
     } = props;
@@ -108,7 +108,7 @@ export default function OpportunityListTable(props: IProps) {
 
                 {opportunities.map((opportunity) => (
                     <OpportunityItem
-                        isSaved={isSavedList}
+                        itemKind={itemKind}
                         key={opportunity.id}
                         opp={opportunity}
                     />
