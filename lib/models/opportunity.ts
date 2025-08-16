@@ -13,6 +13,7 @@ export class Opportunity extends BaseModel {
     industry_name: string;
 	opportunity_type_name: string;
 	status: string;
+    is_saved?: boolean;
 	is_ai_recommended?: boolean;
 
 	creator_full_name: string;

@@ -1,23 +1,32 @@
 'use client';
 
-import {useParams} from "next/navigation";
-import {ArrowLeft, Bookmark, Info} from "lucide-react";
+import {useParams, useSearchParams} from "next/navigation";
+import {BookmarkCheckIcon, BookmarkIcon, Info, Loader2} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {useEffect, useState} from "react";
 import {Skeleton} from "antd";
-import {xhrGet} from "@/lib/xhr";
+import {xhrDelete, xhrGet, xhrPost} from "@/lib/xhr";
 import {apiUrl, backendUrl} from "@/lib/helpers/url";
 import {Opportunity} from "@/lib/models/opportunity";
 import {formatMoney} from "@/lib/helpers/monetery";
 import CustomerLayout, {CustomerCurrentPage} from "@/components/App/Layouts/CustomerLayout";
+import {useMessage} from "@/lib/hooks/message";
+import PageTopBackLink from "@/components/Common/PageTopBackLink";
 
 export default function OpportunityInfoPage() {
     const params = useParams<{ id: string }>();
+    const query = useSearchParams();
+
     const id = params.id;
+    const kind = query.get('kind');
+
     const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const {showMessage} = useMessage()
 
     const fetchData = async () => {
         try {
@@ -30,6 +39,46 @@ export default function OpportunityInfoPage() {
             console.error('Error fetching opportunity:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const saveItem = async () => {
+        try {
+            setIsSaving(true);
+            setError(null);
+
+            const {data: saved} = await xhrPost<Opportunity>(apiUrl(`opportunities/saved-items`), {
+                id: opportunity.id,
+            });
+
+            setOpportunity(saved);
+            showMessage('Opportunity saved successfully')
+        } catch (err) {
+            setError('Failed to save opportunity');
+            console.error('Error saving opportunity:', err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const removeSavedItem = async () => {
+        try {
+            setIsSaving(true);
+            setError(null);
+
+            const _ = await xhrDelete<Opportunity>(apiUrl(`opportunities/saved-items/${opportunity?.id}`));
+
+            setOpportunity({
+                ...opportunity,
+                is_saved: false,
+            })
+
+            showMessage('Opportunity removed successfully')
+        } catch (err) {
+            setError('Failed to remove opportunity');
+            console.error('Error removing opportunity:', err);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -60,16 +109,17 @@ export default function OpportunityInfoPage() {
         );
     }
 
+    const currentPage = kind === 'saved'
+        ? CustomerCurrentPage.SavedOpportunities
+        : CustomerCurrentPage.Opportunities;
+
     return (
-        <CustomerLayout currentPage={CustomerCurrentPage.Opportunities}>
-            <div className="p-6 max-w-7xl mx-auto">
+        <CustomerLayout currentPage={currentPage}>
+            <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center gap-2 mb-6">
-                    <Button variant="ghost" size="sm" className="p-1 hover:bg-gray-100">
-                        <ArrowLeft className="h-4 w-4"/>
-                    </Button>
-                    <span className="text-sm text-gray-600">Back to Opportunities</span>
-                </div>
+                <PageTopBackLink href={kind === 'saved' ? '/saved-opportunities' : '/opportunities'}>
+                    Back to {kind === 'saved' ? 'Saved Opportunities' : 'Opportunities'}
+                </PageTopBackLink>
 
                 {/* Main Content */}
                 <div className="">
@@ -107,11 +157,35 @@ export default function OpportunityInfoPage() {
                                     >
                                         Apply
                                     </Button>
-                                    <Button variant="outline"
-                                            className="py-5 px-5 rounded-3xl border border-[#006A4B] cursor-pointer hover:shadow-2xl"
-                                            size="icon">
-                                        <Bookmark className="h-4 w-4 text-[#006A4B]"/>
-                                    </Button>
+
+                                    {opportunity?.is_saved
+                                        ? (
+                                            <Button
+                                                variant="outline"
+                                                className={`py-5 px-5 rounded-3xl border border-[#006A4B] cursor-pointer hover:shadow-2xl hover:bg-red-200 hover:border-red-500`}
+                                                size="icon"
+                                                disabled={isSaving}
+                                                onClick={removeSavedItem}
+                                            >
+                                                {isSaving
+                                                    ? (<Loader2 className="h-4 w-4 text-[#006A4B] animate-spin"/>)
+                                                    : (<BookmarkCheckIcon
+                                                        className={`h-4 w-4 text-[#006A4B] hover:text-red-500`}/>)
+                                                }
+                                            </Button>
+                                        )
+                                        : (<Button
+                                            variant="outline"
+                                            className={`py-5 px-5 rounded-3xl border border-[#006A4B] cursor-pointer hover:shadow-2xl ${opportunity?.is_saved && 'bg-green-50'}`}
+                                            size="icon"
+                                            disabled={isSaving || opportunity?.is_saved}
+                                            onClick={saveItem}
+                                        >
+                                            {isSaving
+                                                ? (<Loader2 className="h-4 w-4 text-[#006A4B] animate-spin"/>)
+                                                : (<BookmarkIcon className="h-4 w-4 text-[#006A4B]"/>)
+                                            }
+                                        </Button>)}
                                 </div>
                             </>
                         )}

@@ -1,5 +1,5 @@
 import MainScreen from "@/components/App/Customer/Landing/MainScreen";
 
 export default function OpportunitiesPage() {
-    return (<MainScreen />)
+    return (<MainScreen isSavedList={false} />)
 }

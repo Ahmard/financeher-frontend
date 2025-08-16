@@ -1,24 +1,17 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
-import {MessageSquare, Search, Sparkles} from 'lucide-react';
+import React, {useState} from 'react';
+import {MessageSquare, Sparkles} from 'lucide-react';
 import CustomerLayout, {CustomerCurrentPage} from "@/components/App/Layouts/CustomerLayout";
 import {useSession} from "next-auth/react";
 import type {AuthUserData} from "@/lib/types/auth";
 import {greet, greetingIcon} from "@/lib/helpers/time";
 import RightSideFilters, {FilterData} from "@/components/App/Customer/Landing/RightSideFilters";
-import {xhrGet} from "@/lib/xhr";
+import OpportunityListTable from "@/components/App/Customer/OpportunityListTable";
 import {apiUrl} from "@/lib/helpers/url";
-import {useMessage} from "@/lib/hooks/message";
-import {DataTableData} from "@/lib/types/data.table";
-import OpportunityItem from "@/components/App/Customer/Landing/OpportunityItem";
-import {Opportunity} from "@/lib/models/opportunity";
 
-
-const MainScreen: React.FC = () => {
+const MainScreen: React.FC<IProps> = () => {
     const [aiRecommendation, setAiRecommendation] = useState<boolean>(true);
-    const [mainSearchTerm, setMainSearchTerm] = useState<string>('');
-    const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
 
     const [filters, setFilters] = useState<FilterData>({
         amounts: [],
@@ -33,45 +26,6 @@ const MainScreen: React.FC = () => {
     const user: AuthUserData = session?.user;
     const greeting = greet(user?.first_name);
 
-    const {showMessage} = useMessage();
-
-    // Loading states
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const handleSearch = (searchTerm: string) => {
-        setMainSearchTerm(searchTerm);
-        setFilters({
-            ...filters,
-            search: searchTerm
-        });
-
-        fetchOpportunities()
-    };
-
-    const fetchOpportunities = async () => {
-        setIsLoading(true);
-        try {
-            const resp = await xhrGet<DataTableData<Opportunity>>(apiUrl('opportunities'), {
-                'filter[search]': filters.search,
-                'filter[amount]': filters.amounts.join(','),
-                'filter[funding_type]': filters.opportunity_types.join(','),
-                'filter[sector]': filters.industries.join(','),
-                'filter[location]': filters.countries.join(','),
-                'filter[status]': filters.statuses.join(','),
-                'filter[recommended]': aiRecommendation ? 'true' : 'false'
-            });
-            setOpportunities(resp.data.data);
-        } catch (e) {
-            showMessage("Failed to load opportunities", "error")
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchOpportunities();
-    }, []);
-
     return (
         <CustomerLayout currentPage={CustomerCurrentPage.Opportunities}>
             <div className="flex-1 flex flex-col">
@@ -85,6 +39,7 @@ const MainScreen: React.FC = () => {
                             </h1>
                             <p className="text-gray-600 mt-1">See your matches!</p>
                         </div>
+
                         <div className="flex items-center space-x-4">
                             <button
                                 className="cursor-pointer hover:shadow flex items-center space-x-2 bg-white text-green-800 border !border-green-800 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors">
@@ -98,35 +53,12 @@ const MainScreen: React.FC = () => {
                 <div className="flex flex-1">
                     {/* Opportunities List */}
                     <div className="flex-1 p-8">
-                        {/* Search Bar */}
-                        <div className="relative mb-8">
-                            <Search
-                                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
-                            <input
-                                type="text"
-                                placeholder="Search for opportunities"
-                                value={mainSearchTerm}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            />
-                        </div>
-
-                        {/* Opportunities */}
-                        <div className="">
-                            {isLoading && (
-                                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                                    <div className="text-center">
-                                        <div
-                                            className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-                                        <p className="text-gray-600">Loading plan details...</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {opportunities.map((opportunity) => (
-                                <OpportunityItem key={opportunity.id} opp={opportunity}/>
-                            ))}
-                        </div>
+                        <OpportunityListTable
+                            isSavedList={false}
+                            endpoint={apiUrl('opportunities')}
+                            aiRecommendation={aiRecommendation}
+                            onFilterChange={setFilters}
+                        />
                     </div>
 
                     {/* Right Sidebar - RightSideFilters */}

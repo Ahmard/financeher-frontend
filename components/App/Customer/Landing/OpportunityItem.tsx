@@ -8,11 +8,16 @@ import Link from "next/link";
 
 interface IProps {
     opp: Opportunity;
+    isSaved?: boolean;
 }
 
-export default function OpportunityItem({opp}: IProps) {
+export default function OpportunityItem({opp, isSaved}: IProps) {
+    const href = isSaved
+        ? `/opportunities/${opp['opportunity_id']}?kind=saved`
+        : `/opportunities/${opp.id}`;
+
     return (
-        <Link href={`/opportunities/${opp.id}`} className="cursor-pointer">
+        <Link href={href} className="cursor-pointer">
             <div className="bg-white rounded-lg border border-gray-200 p-6 my-2 hover:shadow hover:bg-green-50">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
