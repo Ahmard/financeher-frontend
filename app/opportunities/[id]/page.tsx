@@ -24,6 +24,7 @@ export default function OpportunityInfoPage() {
     const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isApplying, setIsApplying] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const {showMessage} = useMessage()
@@ -39,6 +40,25 @@ export default function OpportunityInfoPage() {
             console.error('Error fetching opportunity:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const apply = async () => {
+        try {
+            setIsApplying(true);
+            setError(null);
+
+            const {data: saved} = await xhrPost<Opportunity>(apiUrl(`opportunities/applied-items`), {
+                id: opportunity.id,
+            });
+
+            setOpportunity(saved);
+            window.open(saved.application_url, '_blank')
+        } catch (err) {
+            setError('Failed to apply opportunity');
+            console.error('Error applying opportunity:', err);
+        } finally {
+            setIsApplying(false);
         }
     };
 
@@ -153,9 +173,12 @@ export default function OpportunityInfoPage() {
                                 <div className="flex gap-2">
                                     <Button
                                         className="bg-[#006A4B] hover:bg-green-700 text-white py-5 px-8 rounded-3xl cursor-pointer"
-                                        onClick={() => opportunity?.application_url && window.open(opportunity.application_url, '_blank')}
+                                        onClick={apply}
                                     >
-                                        Apply
+                                        {isApplying
+                                            ? (<Loader2 className="h-4 w-4 text-white animate-spin"/>)
+                                            : (opportunity?.has_applied ? 'Applied' : 'Apply')
+                                        }
                                     </Button>
 
                                     {opportunity?.is_saved

@@ -14,6 +14,7 @@ export class Opportunity extends BaseModel {
 	opportunity_type_name: string;
 	status: string;
     is_saved?: boolean;
+    has_applied?: boolean;
 	is_ai_recommended?: boolean;
 
 	creator_full_name: string;
