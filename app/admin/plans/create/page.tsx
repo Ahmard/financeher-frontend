@@ -87,7 +87,7 @@ export default function OpportunityCreatePage() {
           Back to Plans
         </PageTopBackLink>
 
-        <PageHeader name="Create New Plan" className="mb-4"/>
+        <PageHeader title="Create New Plan" className="mb-4"/>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

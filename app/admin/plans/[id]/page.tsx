@@ -146,7 +146,7 @@ export default function PlanInfoPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <PageHeader name={plan.name} className="mb-2"/>
+            <PageHeader title={plan.name} className="mb-2"/>
             <p className="text-gray-600">Plan Details</p>
           </div>
           <div className="flex gap-3">

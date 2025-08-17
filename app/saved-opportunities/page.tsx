@@ -14,7 +14,7 @@ export default function OpportunitiesPage() {
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6">
-                        <PageHeader name="Saved Opportunities"/>
+                        <PageHeader title="Saved Opportunities"/>
                     </div>
 
                     <OpportunityListTable

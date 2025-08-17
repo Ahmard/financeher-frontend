@@ -133,7 +133,7 @@ const Confirm: React.FC<IProps> = (props) => {
             type="primary"
             htmlType="submit"
             loading={isSubmitting}
-            className="ms-2"
+            className="ms-2 !bg-[#006A4B]"
           >
             {isSubmitting ? 'Processing...' : okText}
           </Button>

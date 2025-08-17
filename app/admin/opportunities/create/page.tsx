@@ -118,7 +118,7 @@ export default function OpportunityCreatePage() {
           Back to Opportunities
         </PageTopBackLink>
 
-        <PageHeader name="Create New Opportunity" className="mb-4"/>
+        <PageHeader title="Create New Opportunity" className="mb-4"/>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

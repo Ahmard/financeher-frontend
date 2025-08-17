@@ -205,7 +205,7 @@ export default function PlanEditPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <PageHeader name={`Edit Plan: ${originalPlan.name}`} className="mb-2"/>
+            <PageHeader title={`Edit Plan: ${originalPlan.name}`} className="mb-2"/>
             <p className="text-gray-600">Update plan information and features</p>
           </div>
           {isDirty && (

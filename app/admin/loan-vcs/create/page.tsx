@@ -121,7 +121,7 @@ export default function OpportunityCreatePage() {
           Back to Loan/VCs
         </PageTopBackLink>
 
-        <PageHeader name="Create New Loan/VC" className="mb-5"/>
+        <PageHeader title="Create New Loan/VC" className="mb-5"/>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

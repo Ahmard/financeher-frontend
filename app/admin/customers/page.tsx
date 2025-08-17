@@ -17,6 +17,7 @@ import {xhrGet} from "@/lib/xhr";
 import {User} from "@/lib/models/user";
 import StatusBadge from "@/components/App/Admin/User/StatusBadge";
 import {usePageTitle} from "@/lib/helpers/page.helper";
+import {formatDatetime} from "@/lib/helpers/time";
 
 interface IPageMetrics {
     all: number;
@@ -25,7 +26,7 @@ interface IPageMetrics {
 }
 
 const UsersPage = () => {
-    usePageTitle('Users');
+    usePageTitle('Customers');
 
     const [selectedTab, setSelectedTab] = useState('all');
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
@@ -39,7 +40,7 @@ const UsersPage = () => {
         suspended: 0
     });
 
-    const endpointList = apiUrl('admin/users', {
+    const endpointList = apiUrl('admin/users/businesses', {
         'filter[status]': selectedTab,
     })
 
@@ -72,19 +73,13 @@ const UsersPage = () => {
     };
 
     const fetchPageMetrics = () => {
-        xhrGet<IPageMetrics>(apiUrl('admin/users/page-metrics'))
+        xhrGet<IPageMetrics>(apiUrl('admin/users/businesses/page-metrics'))
             .then(resp => {
                 setPageMetrics(resp.data)
             })
     }
 
     const columns: DataTableColumnProps<User>[] = [
-        {
-            dataIndex: 'business_name',
-            title: 'Business',
-            width: '40%',
-            sortable: true,
-        },
         {
             dataIndex: 'first_name',
             title: 'Name',
@@ -95,15 +90,22 @@ const UsersPage = () => {
             ),
         },
         {
-            dataIndex: 'email',
-            title: 'Email',
+            dataIndex: 'industry_name',
+            title: 'Sector',
             width: '20%',
             align: 'left' as const,
             sortable: true,
         },
         {
-            dataIndex: 'mobile_number',
-            title: 'Mobile Number',
+            dataIndex: 'business_stage_name',
+            title: 'Growth Stage',
+            width: '20%',
+            align: 'left' as const,
+            sortable: true,
+        },
+        {
+            dataIndex: 'email',
+            title: 'Email',
             width: '20%',
             align: 'left' as const,
             sortable: true,
@@ -122,7 +124,7 @@ const UsersPage = () => {
             align: 'left' as const,
             sortable: true,
             render: (value: string) => (
-                <span className="text-gray-700">{value}</span>
+                <span className="text-gray-700">{formatDatetime(value)}</span>
             ),
         },
         {
@@ -141,18 +143,12 @@ const UsersPage = () => {
     }, []);
 
     return (
-        <AdminLayout currentPage={CurrentPage.Users}>
+        <AdminLayout currentPage={CurrentPage.Customers}>
             <div className="p-6 bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6">
-                        <PageHeader name="Users"/>
-
-                        <Link href="/admin/users/create">
-                            <Button className="cursor-pointer bg-green-700 hover:bg-green-800 text-white">
-                                Invite User
-                            </Button>
-                        </Link>
+                        <PageHeader title="Customers"/>
                     </div>
 
                     {/* Tabs */}

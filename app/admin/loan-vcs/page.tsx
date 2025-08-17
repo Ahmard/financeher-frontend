@@ -148,7 +148,7 @@ const OpportunitiesPage = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <PageHeader name="Loans/VCs"/>
+            <PageHeader title="Loans/VCs"/>
 
             <Link href="/admin/loan-vcs/create">
               <Button className="cursor-pointer bg-green-700 hover:bg-green-800 text-white">

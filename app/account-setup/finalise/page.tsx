@@ -6,7 +6,6 @@ import {useEffect, useState} from "react";
 import {useMessage} from "@/lib/hooks/message";
 import {apiUrl} from "@/lib/helpers/url";
 import {xhrGet, xhrPost} from "@/lib/xhr";
-import {redirect} from "next/navigation";
 
 interface IItem {
     id: string;
@@ -32,8 +31,20 @@ export default function AccountSetupFinalisePage() {
     const [growthStages, setGrowthStages] = useState<IItem[]>([]);
     const [opportunityTypes, setOpportunityTypes] = useState<IItem[]>([]);
 
+    const maxIndustries = 3;
+
     // Handle industry selection (multiple)
     const handleIndustryToggle = (industryId: string) => {
+        if (selectedIndustries.length == 3) {
+            showMessage(`You can only select ${maxIndustries} industries`, 'warning')
+            return;
+        }
+
+        // Handle unselection
+        if (selectedIndustries.includes(industryId)) {
+            
+        }
+
         setSelectedIndustries(prev =>
             prev.includes(industryId)
                 ? prev.filter(item => item !== industryId)
@@ -146,7 +157,7 @@ export default function AccountSetupFinalisePage() {
                         <div className="space-y-3">
                             <div>
                                 <h2 className="text-sm font-medium text-gray-900 mb-1">Industry</h2>
-                                <p className="text-sm text-gray-600">What industry is your business in?</p>
+                                <p className="text-sm text-gray-600">What industry will you be interested in?</p>
                             </div>
 
                             <div className="flex flex-wrap gap-2">

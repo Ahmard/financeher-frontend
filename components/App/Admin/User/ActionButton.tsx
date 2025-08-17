@@ -1,13 +1,11 @@
 import {Button} from "@/components/ui/button";
-import {Eye, MoreHorizontal, Trash2} from "lucide-react";
+import {MoreHorizontal, UserRoundCheckIcon, UserRoundXIcon} from "lucide-react";
 import {useState} from "react";
-import type {Opportunity} from "@/lib/models/opportunity";
 import {redirect} from "next/navigation";
 import {cmk} from "@/lib/helpers/str";
 import {HttpMethod} from "@/lib/enums/http";
 import {apiUrl} from "@/lib/helpers/url";
-import ConfirmWithReason from "@/components/Common/ConfirmWithReason";
-import {User} from "@/lib/models/user";
+import {User, UserStatus} from "@/lib/models/user";
 import Confirm from "@/components/Common/Confirm";
 
 interface IProps {
@@ -23,19 +21,35 @@ export default function ActionButton({user, onRefresh}: IProps) {
         cmk: '',
         title: '',
         okText: '',
+        statement: '',
         successMessage: '',
         endpoint: '',
+        httpMethod: HttpMethod.Patch,
     });
 
-    const handleDelete = () => {
+    const handleActivate = () => {
         setOpenDropdown(null);
         setConfirmModal({
             cmk: cmk(),
             state: true,
-            title: 'Delete Opportunity',
-            okText: 'Delete',
-            successMessage: 'Opportunity deleted successfully',
-            endpoint: apiUrl(`admin/opportunities/${user.id}`)
+            title: 'Activate User',
+            okText: 'Activate',
+            statement: 'Are you sure you want to activate this user?',
+            successMessage: 'User has been activated successfully',
+            endpoint: apiUrl(`admin/users/${user.id}/activate`)
+        });
+    };
+
+    const handleSuspension = () => {
+        setOpenDropdown(null);
+        setConfirmModal({
+            cmk: cmk(),
+            state: true,
+            title: 'Suspend User?',
+            okText: 'Suspend',
+            statement: 'Are you sure you want to suspend this user?',
+            successMessage: 'User has been suspended successfully',
+            endpoint: apiUrl(`admin/users/${user.id}/deactivate`)
         });
     };
 
@@ -66,28 +80,33 @@ export default function ActionButton({user, onRefresh}: IProps) {
                     <div
                         className="absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                         <div className="py-1">
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleView();
-                                }}
-                                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                                <Eye className="h-4 w-4 mr-2"/>
-                                View
-                            </button>
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete();
-                                }}
-                                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
-                            >
-                                <Trash2 className="h-4 w-4 mr-2"/>
-                                Delete
-                            </button>
+                            {user.status == UserStatus.Inactive && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleActivate();
+                                    }}
+                                    className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                    <UserRoundCheckIcon/>
+                                    Activate User
+                                </button>
+                            )}
+
+                            {user.status == UserStatus.Active && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSuspension();
+                                    }}
+                                    className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                    <UserRoundXIcon/>
+                                    Suspend User
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}
@@ -97,10 +116,11 @@ export default function ActionButton({user, onRefresh}: IProps) {
                 key={confirmModal.cmk}
                 visible={confirmModal.state}
                 title={confirmModal.title}
+                statement={confirmModal.statement}
                 okText={confirmModal.okText}
                 successMessage={confirmModal.successMessage}
                 endpoint={confirmModal.endpoint}
-                httpMethod={HttpMethod.Delete}
+                httpMethod={confirmModal.httpMethod}
                 onSuccess={onRefresh}
                 onCancel={() => {
                     setConfirmModal({

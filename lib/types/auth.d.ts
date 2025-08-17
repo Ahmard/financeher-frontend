@@ -44,6 +44,9 @@ export interface AuthMe {
 	price_type: string;
 	profile_picture: string;
 	cover_picture: undefined;
+    is_news_notification_enabled: boolean;
+    is_new_opportunity_notification_enabled: boolean;
+    is_app_opportunity_notification_enabled: boolean;
 	status: string;
 	registration_stage: UserRegistrationStage;
 	unit_names: string[];
